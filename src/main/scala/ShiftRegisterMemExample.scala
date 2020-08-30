@@ -3,18 +3,13 @@ package backendTest
 import chisel3._
 import chisel3.util._
 
-import craft.ShiftRegisterMem
-
-
 class ShiftRegisterIO[T <: Data](gen: T, n: Int) extends Bundle {
   require (n >= 0, "Shift register must have non-negative shift")
-  val in = Input(gen.cloneType)
-  val out = Output(gen.cloneType)
-  
+  val in = Input(gen)
+  val out = Output(gen)
+
   val en = Input(Bool())
   val valid_out = Output(Bool())
-  
-  override def cloneType: this.type = (new ShiftRegisterIO(gen, n)).asInstanceOf[this.type]
 }
 
 class ShiftRegisterMemExample[T <: Data](gen: T, n: Int) extends Module {
@@ -25,7 +20,7 @@ class ShiftRegisterMemExample[T <: Data](gen: T, n: Int) extends Module {
   val shiftMem = ShiftRegisterMem(io.in, n, io.en, name = "simple_shift_register")
   //val shiftMem = ShiftRegister(io.in, n, io.en)
   io.out := shiftMem
- 
+
   when (io.en === true.B) {
     cnt := cnt +% 1.U
   }
