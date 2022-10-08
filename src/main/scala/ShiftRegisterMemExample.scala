@@ -1,28 +1,30 @@
-package backendTest
+package shiftMem
 
 import chisel3._
 import chisel3.util._
-
+import chisel3.stage.{ChiselGeneratorAnnotation, ChiselStage}
 import craft.ShiftRegisterMem
 
+// Extend module with IO
+abstract trait HasIO extends Module {
+  val io: Bundle
+}
 
-class ShiftRegisterIO[T <: Data](gen: T, n: Int) extends Bundle {
+class ShiftRegisterIO[T <: Data](gen: T, n: Int) extends Bundle  {
   require (n >= 0, "Shift register must have non-negative shift")
   val in = Input(gen.cloneType)
   val out = Output(gen.cloneType)
   
   val en = Input(Bool())
   val valid_out = Output(Bool())
-  
-  override def cloneType: this.type = (new ShiftRegisterIO(gen, n)).asInstanceOf[this.type]
 }
 
-class ShiftRegisterMemExample[T <: Data](gen: T, n: Int) extends Module {
+class ShiftRegisterMemExample[T <: Data](gen: T, n: Int, isMem: Boolean = true) extends Module with HasIO {
   val io = IO(new ShiftRegisterIO(gen, n))
   val logn = log2Ceil(n)
   val cnt = RegInit(0.U(logn.W))
 
-  val shiftMem = ShiftRegisterMem(io.in, n, io.en, name = "simple_shift_register")
+  val shiftMem = if (isMem) ShiftRegisterMem(io.in, n, io.en, name = "simple_shift_register") else ShiftRegister(io.in, n, io.en)
   //val shiftMem = ShiftRegister(io.in, n, io.en)
   io.out := shiftMem
  
@@ -39,5 +41,5 @@ class ShiftRegisterMemExample[T <: Data](gen: T, n: Int) extends Module {
 
 object ShiftRegisterMemApp extends App
 {
-  chisel3.Driver.execute(args,()=>new ShiftRegisterMemExample(UInt(4.W), 10))
+  (new ChiselStage).execute(Array("--target-dir", "verilog/ShiftRegisterMem"), Seq(ChiselGeneratorAnnotation(() => new ShiftRegisterMemExample(UInt(4.W), 10))))
 }
