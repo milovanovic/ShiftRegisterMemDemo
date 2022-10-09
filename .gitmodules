@@ -7,3 +7,6 @@
 [submodule "tools/dsptools"]
 	path = tools/dsptools
 	url = https://github.com/ucb-bar/dsptools.git
+[submodule "tools/api-config-chipsalliance"]
+	path = tools/api-config-chipsalliance
+	url = https://github.com/chipsalliance/cde.git
