@@ -6,10 +6,10 @@ lazy val commonSettings = Seq(
   organization := "edu.berkeley.cs",
   version := "1.6",
   scalaVersion := "2.12.10",
- // assembly / test := {},
- // assembly / assemblyMergeStrategy := { _ match {
- //   case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
- //   case _ => MergeStrategy.first}},
+  assembly / test := {},
+  assembly / assemblyMergeStrategy := { _ match {
+    case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
+    case _ => MergeStrategy.first}},
   scalacOptions ++= Seq("-deprecation","-unchecked","-Xsource:2.11"),
   addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full),
   unmanagedBase := (shiftMemRoot / unmanagedBase).value,
@@ -40,7 +40,7 @@ def freshProject(name: String, dir: File): Project = {
   Project(id = name, base = dir / "src")
     .settings(
       Compile / scalaSource := baseDirectory.value / "main" / "scala",
-     // Compile / resourceDirectory := baseDirectory.value / "main" / "resources"
+      Compile / resourceDirectory := baseDirectory.value / "main" / "resources"
     )
 }
 
@@ -63,7 +63,7 @@ lazy val chiselTestSettings = Seq(libraryDependencies ++= Seq("edu.berkeley.cs" 
 // Rocket-chip dependencies (subsumes making RC a RootProject)
 lazy val hardfloat  = (project in rocketChipDir / "hardfloat")
   .settings(chiselSettings)
-  .dependsOn(midasTargetUtils)
+  //.dependsOn(midasTargetUtils)
   .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
@@ -142,8 +142,14 @@ lazy val `rocket-dsp-utils` = freshProject("rocket-dsp-utils", file("./tools/roc
   .settings(libraryDependencies ++= rocketLibDeps.value)
   .settings(commonSettings)
 
-lazy val shiftMem = (project in file("."))
+/*lazy val shiftMem = freshProject("shiftMem", file("."))
   .dependsOn(rocketchip, `rocket-dsp-utils`)
+  .settings(chiselSettings)
+  .settings(chiselTestSettings)
+  .settings(commonSettings)*/
+
+lazy val shiftMem = (project in file("."))
+  .dependsOn(rocketchip, `rocket-dsp-utils`, `api-config-chipsalliance`, dsptools)
   .settings(libraryDependencies ++= rocketLibDeps.value)
   .settings(
     allDependencies := {
@@ -154,3 +160,4 @@ lazy val shiftMem = (project in file("."))
       }
     },
     commonSettings)
+

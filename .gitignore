@@ -6,5 +6,5 @@ generated-rtl/
 *.bsp
 *.zip
 
-target/
-project/
+target
+project/project
