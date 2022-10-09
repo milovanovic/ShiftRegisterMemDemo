@@ -1,3 +1,4 @@
+import Tests._
 
 lazy val shiftMemRoot = Project("shiftMemRoot", file("."))
 
@@ -5,10 +6,10 @@ lazy val commonSettings = Seq(
   organization := "edu.berkeley.cs",
   version := "1.6",
   scalaVersion := "2.12.10",
-  assembly / test := {},
-  assembly / assemblyMergeStrategy := { _ match {
-    case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
-    case _ => MergeStrategy.first}},
+ // assembly / test := {},
+ // assembly / assemblyMergeStrategy := { _ match {
+ //   case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
+ //   case _ => MergeStrategy.first}},
   scalacOptions ++= Seq("-deprecation","-unchecked","-Xsource:2.11"),
   addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full),
   unmanagedBase := (shiftMemRoot / unmanagedBase).value,
@@ -106,10 +107,13 @@ lazy val rocketchip = freshProject("rocketchip", rocketChipDir)
   )
   .settings( // Settings for scalafix
     semanticdbEnabled := true,
-    semanticdbVersion := scalafixSemanticdb.revision,
+  //  semanticdbVersion := scalafixSemanticdb.revision,
     scalacOptions += "-Ywarn-unused-import"
   )
+
+lazy val firesimDir = file("sims/firesim/sim/")
 lazy val rocketLibDeps = (rocketchip / Keys.libraryDependencies)
+lazy val midasTargetUtils = ProjectRef(firesimDir, "targetutils")
 
 lazy val dsptools = freshProject("dsptools", file("./tools/dsptools"))
   .settings(
@@ -132,12 +136,13 @@ lazy val `api-config-chipsalliance` = freshProject("api-config-chipsalliance", f
       "org.scalacheck" %% "scalacheck" % "1.14.3" % "test",
     ))
 
+
 lazy val `rocket-dsp-utils` = freshProject("rocket-dsp-utils", file("./tools/rocket-dsp-utils"))
   .dependsOn(rocketchip, `api-config-chipsalliance`, dsptools)
   .settings(libraryDependencies ++= rocketLibDeps.value)
   .settings(commonSettings)
 
-lazy val shiftMem = (project in file(.))
+lazy val shiftMem = (project in file("."))
   .dependsOn(rocketchip, `rocket-dsp-utils`)
   .settings(libraryDependencies ++= rocketLibDeps.value)
   .settings(
@@ -149,44 +154,3 @@ lazy val shiftMem = (project in file(.))
       }
     },
     commonSettings)
-
-// def scalacOptionsVersion(scalaVersion: String): Seq[String] = {
-//   Seq() ++ {
-//     // If we're building with Scala > 2.11, enable the compile option
-//     //  switch to support our anonymous Bundle definitions:
-//     //  https://github.com/scala/bug/issues/10047
-//     CrossVersion.partialVersion(scalaVersion) match {
-//       case Some((2, scalaMajor: Long)) if scalaMajor < 12 => Seq()
-//       case _ => Seq("-Xsource:2.11")
-//     }
-//   }
-// }
-//
-// def javacOptionsVersion(scalaVersion: String): Seq[String] = {
-//   Seq() ++ {
-//     // Scala 2.12 requires Java 8. We continue to generate
-//     //  Java 7 compatible code for Scala 2.11
-//     //  for compatibility with old clients.
-//     CrossVersion.partialVersion(scalaVersion) match {
-//       case Some((2, scalaMajor: Long)) if scalaMajor < 12 =>
-//         Seq("-source", "1.7", "-target", "1.7")
-//       case _ =>
-//         Seq("-source", "1.8", "-target", "1.8")
-//     }
-//   }
-// }
-//
-// name := "backendTest"
-// version := "1.0"
-// scalaVersion := "2.12.10"
-// crossScalaVersions := Seq("2.12.10", "2.11.12")
-//
-// resolvers ++= Seq(
-//   Resolver.sonatypeRepo("snapshots"),
-//   Resolver.sonatypeRepo("releases")
-// )
-//
-// libraryDependencies += "edu.berkeley.cs" %% "rocket-dsptools" % "1.2-SNAPSHOT"
-//
-// scalacOptions ++= scalacOptionsVersion(scalaVersion.value)
-// javacOptions ++= javacOptionsVersion(scalaVersion.value)
