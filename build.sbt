@@ -107,7 +107,7 @@ lazy val rocketchip = freshProject("rocketchip", rocketChipDir)
   )
   .settings( // Settings for scalafix
     semanticdbEnabled := true,
-  //  semanticdbVersion := scalafixSemanticdb.revision,
+    semanticdbVersion := scalafixSemanticdb.revision,
     scalacOptions += "-Ywarn-unused-import"
   )
 
@@ -148,16 +148,17 @@ lazy val `rocket-dsp-utils` = freshProject("rocket-dsp-utils", file("./tools/roc
   .settings(chiselTestSettings)
   .settings(commonSettings)*/
 
-lazy val shiftMem = (project in file("."))
+lazy val shiftMem = freshProject("shiftMem", file("./design")) //(project in file("./design"))
   .dependsOn(rocketchip, `rocket-dsp-utils`, `api-config-chipsalliance`, dsptools)
   .settings(libraryDependencies ++= rocketLibDeps.value)
+  //.settings(chiselSettings)
   .settings(
-    allDependencies := {
+    /*allDependencies := {
       // drop specific maven dependencies in subprojects in favor of Chipyard's version
       val dropDeps = Seq(("edu.berkeley.cs", "rocket-dsptools"))
       allDependencies.value.filterNot { dep =>
         dropDeps.contains((dep.organization, dep.name))
       }
-    },
+    },*/
     commonSettings)
 
