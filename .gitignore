@@ -10,4 +10,5 @@ generated-rtl/
 *_verilator
 
 target
-project
+project/project
+project/target
