@@ -39,17 +39,38 @@ resolvers ++= Seq(
   Resolver.sonatypeRepo("releases")
 )
 
-addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
+/*val defaultVersions = Map(
+  "chisel3" -> "3.5-SNAPSHOT",
+  "firrtl" -> "1.5-SNAPSHOT",
+  "firrtl-interpreter" -> "1.5-SNAPSHOT",
+  "treadle" -> "1.5-SNAPSHOT"
+)*/
 
-// Provide a managed dependency on X if -DXVersion="" is supplied on the command line.
-val defaultVersions = Seq(
-  "chisel-iotesters" -> "1.5.3", //"1.5.4" - fails,
-  "chiseltest" -> "0.3.3"
+val commonSettings = Seq(
+  version := "1.0-SNAPSHOT",
+  scalaVersion := "2.12.12",
+  crossScalaVersions := Seq("2.12.12", "2.11.12"),
+  scalacOptions ++= scalacOptionsVersion(scalaVersion.value),
+  javacOptions ++= javacOptionsVersion(scalaVersion.value),
+  resolvers ++= Seq (
+    Resolver.sonatypeRepo("snapshots"),
+    Resolver.sonatypeRepo("releases")
   )
+)
 
-libraryDependencies ++= defaultVersions.map { case (dep, ver) =>
-  "edu.berkeley.cs" %% dep % sys.props.getOrElse(dep + "Version", ver) }
+addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
+//addCompilerPlugin("edu.berkeley.cs" %% "chisel3-plugin" % defaultVersions("chisel3") cross CrossVersion.full)
 
-scalacOptions ++= scalacOptionsVersion(scalaVersion.value)
+lazy val chisel = (project in file("chisel3"))
+  .settings(commonSettings: _*)
 
-javacOptions ++= javacOptionsVersion(scalaVersion.value)
+lazy val chisel_testers = (project in file("chisel-testers"))
+  .dependsOn(chisel)
+  .settings(commonSettings: _*)
+
+lazy val chisel_version_test = (project in file("."))
+  .dependsOn(chisel, chisel_testers)
+  .settings(commonSettings: _*)
+
+
+
