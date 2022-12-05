@@ -23,9 +23,9 @@ class ShiftRegisterTester(c: ShiftRegisterMemExample[UInt], testSignal: Seq[Int]
     step(1)
   }
 
-    poke(c.io.en, 0)
-    step(3)
-    poke(c.io.en, 1)
+  poke(c.io.en, 0)
+  step(4)
+  poke(c.io.en, 1)
 
   for (i <- testSignal.length/2 until (testSignal.length-1)) {
     poke(c.io.in, testSignal(i))
@@ -34,7 +34,7 @@ class ShiftRegisterTester(c: ShiftRegisterMemExample[UInt], testSignal: Seq[Int]
     }
     step(1)
   }
-  //poke(c.io.en, 0)
+  poke(c.io.en, 0)
   step(10)
 }
 
@@ -45,25 +45,44 @@ class ShiftRegisterMemSpec extends FlatSpec with Matchers { //AnyFlatSpec with M
   }
   val depthSignal = 12
   val proto = UInt(4.W)
-  val depthSR = 8
+  val depthSR = 4
   val testSignal = getTestSignal(depthSignal)
 
-  it should f"test ShiftRegisterMem with treadle backend" in {
+  it should f"test ShiftRegisterMem with treadle backend and use_sp_mem = false" in {
     chisel3.iotesters.Driver.execute(Array("-fiwv",
         "--backend-name", "treadle",
         "--tr-write-vcd",
         "--target-dir", "ShiftRegisterMem_treadle",
         "--top-name") :+ "ShiftRegisterMem_treadle",
-        () => new ShiftRegisterMemExample(proto, depthSR)) { c =>
+        () => new ShiftRegisterMemExample(proto, depthSR, isMem = true, isSp = Some(false))) { c =>
     new ShiftRegisterTester(c, testSignal) } should be (true)
   }
 
-  it should f"test ShiftRegisterMem with verilator backend" in {
+  it should f"test ShiftRegisterMem with verilator backend and use_sp_mem = false" in {
     chisel3.iotesters.Driver.execute(Array("-fiwv",
         "--backend-name", "verilator",
         "--target-dir", "ShiftRegisterMem_verilator",
         "--top-name") :+ "ShiftRegisterMem_verilator",
-        () => new ShiftRegisterMemExample(proto, depthSR)) { c =>
+        () => new ShiftRegisterMemExample(proto, depthSR, isMem = true, isSp = Some(false))) { c =>
+    new ShiftRegisterTester(c, testSignal) } should be (true)
+  }
+
+  it should f"test ShiftRegisterMem with treadle backend and use_sp_mem = true" in {
+    chisel3.iotesters.Driver.execute(Array("-fiwv",
+        "--backend-name", "treadle",
+        "--tr-write-vcd",
+        "--target-dir", "ShiftRegisterMem_sp_treadle",
+        "--top-name") :+ "ShiftRegisterMem_sp_treadle",
+        () => new ShiftRegisterMemExample(proto, depthSR, isMem = true, isSp = Some(true))) { c =>
+    new ShiftRegisterTester(c, testSignal) } should be (true)
+  }
+
+  it should f"test ShiftRegisterMem with verilator backend and use_sp_mem = true" in {
+    chisel3.iotesters.Driver.execute(Array("-fiwv",
+        "--backend-name", "verilator",
+        "--target-dir", "ShiftRegisterMem_sp_verilator",
+        "--top-name") :+ "ShiftRegisterMem_sp_verilator",
+        () => new ShiftRegisterMemExample(proto, depthSR, isMem = true, isSp = Some(true))) { c =>
     new ShiftRegisterTester(c, testSignal) } should be (true)
   }
 

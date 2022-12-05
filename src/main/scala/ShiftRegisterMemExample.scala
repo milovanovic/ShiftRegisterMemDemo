@@ -18,12 +18,12 @@ class ShiftRegisterIO[T <: Data](gen: T, n: Int) extends Bundle  {
   val valid_out = Output(Bool())
 }
 
-class ShiftRegisterMemExample[T <: Data](gen: T, n: Int, isMem: Boolean = true) extends Module with HasIO {
+class ShiftRegisterMemExample[T <: Data](gen: T, n: Int, isMem: Boolean = true, isSp: Option[Boolean] = None) extends Module with HasIO {
   val io = IO(new ShiftRegisterIO(gen, n))
   val logn = log2Ceil(n)
   val cnt = RegInit(0.U(logn.W))
 
-  val shiftMem = if (isMem) ShiftRegisterMem(io.in, n, io.en, use_sp_mem = true, name = "simple_shift_register") else ShiftRegister(io.in, n, io.en)
+  val shiftMem = if (isMem) ShiftRegisterMem(io.in, n, io.en, use_sp_mem = isSp.getOrElse(false), name = "simple_shift_register") else ShiftRegister(io.in, n, io.en)
   //val shiftMem = ShiftRegister(io.in, n, io.en)
   io.out := shiftMem
  
@@ -40,15 +40,13 @@ class ShiftRegisterMemExample[T <: Data](gen: T, n: Int, isMem: Boolean = true) 
 
 object ShiftRegisterMemApp extends App
 {
-    val arguments = Array(
-      "--target-dir", "verilog/ShiftRegisterMem",
-      "-X", "verilog",
-      "--repl-seq-mem", "-c:ShiftRegisterMemExample:-o:mem.conf",
-      "--log-level", "info"
-    )
-  // generate black boxes for memories
+  val arguments = Array(
+    "--target-dir", "verilog/ShiftRegisterMem",
+    "-X", "verilog",
+    "--repl-seq-mem", "-c:ShiftRegisterMemExample:-o:mem.conf",
+    "--log-level", "info"
+  )
   (new ChiselStage).execute(arguments, Seq(ChiselGeneratorAnnotation(() => new ShiftRegisterMemExample(UInt(16.W), 1024))))
-//}
 
  //(new ChiselStage).execute(Array("--target-dir", "verilog/ShiftRegisterMem"), Seq(ChiselGeneratorAnnotation(() => new ShiftRegisterMemExample(UInt(10.W), 1024))))
 }
