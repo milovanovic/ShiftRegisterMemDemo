@@ -1,4 +1,5 @@
 
+
 Demonstration of output differences between two different chisel versions for ShiftRegisterMem
 ===================
 
@@ -12,20 +13,23 @@ Waverform diagram of `ShiftRegisterMem` object as a result of tests execution wi
 Waverform diagram of `ShiftRegisterMem` object as a result of tests execution with **chisel version 3.4.3** (verilator backend):
 ![verilator backend](./doc/verilator_test_shift_mem_ok.png)
 
-First conclusions are that  [commit 18e607](https://github.com/chipsalliance/chisel3/commit/18e6077ff935e464850132263fab4c7a06bcb4df) is the reason for tests failure.
+Presented diagrams shows that `SyncReadMem` behave different for different Chisel versions (chisel version 3.4.3 gives the correct output). First conclusions are that  [commit 18e607](https://github.com/chipsalliance/chisel3/commit/18e6077ff935e464850132263fab4c7a06bcb4df) is the reason for tests failure.  This issue leads to incorrect simulation behaviour of designs where `ShiftRegisterMem` object is extensively used.
 
 If `ShiftRegisterMem` is replaced with simple `ShiftRegister` object from `chisel3.util` library or when single port SRAM implementation is in use, all tests pass without errors for both mentioned backends. Diagram is presented below:
 
 ![verilator backend](./doc/verilator_shift_reg.png)
 
-This issue leads to incorrect simulation behaviour of designs where `ShiftRegisterMem` object is extensively used.
+
 
 ## Setup
 
 ```
-git clone --branch sp_sram_shift_register https://github.com/milovanovic/ShiftRegisterMemDemo.git
+git clone https://github.com/milovanovic/ShiftRegisterMemDemo.git
 cd ShiftRegisterMemDemo
+git submodule update --init --recursive
+```
 
+```
 //to run tests
 sbt test
 ```
