@@ -6,6 +6,8 @@ generated-rtl/
 *.bsp
 *.zip
 *.conf
+*_treadle
+*_verilator
 
 target
 project
