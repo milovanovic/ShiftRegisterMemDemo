@@ -24,26 +24,28 @@ object ShiftRegisterMem {
       val out_sp1 = Wire(in.cloneType)
       out_sp1 := DontCare
       dontTouch(out_sp0)
+      out_sp0.suggestName("out_sp0")
       dontTouch(out_sp1)
+      out_sp1.suggestName("out_sp1")
 
       val mem_sp0 = SyncReadMem(n/2, in.cloneType)
       val mem_sp1 = SyncReadMem(n/2, in.cloneType)
 
       val index_counter = Counter(en, n)._1
-      val raddr_sp0 = index_counter >> 1.U // ~index_counter
-      val raddr_sp1 = RegEnable(raddr_sp0, 0.U, en)
+      val raddr_sp0 = index_counter >> 1.U //index_counter >> 1.U // ~index_counter
+      val raddr_sp1 = RegEnable(raddr_sp0, (n/2-1).U, en) //RegEnable(raddr_sp0, 0.U, en)
 
       raddr_sp0.suggestName("raddr_sp0")
       dontTouch(raddr_sp0)
       raddr_sp1.suggestName("raddr_sp1")
       dontTouch(raddr_sp1)
 
-      val wen_sp0 = index_counter(0) // or ~index_counter(0) !!!!
+      val wen_sp0 = index_counter(0) // or ~index_counter(0) !!!! previous it was without ~
       wen_sp0.suggestName("wensp0")
       dontTouch(wen_sp0)
 
       val wen_sp1 = WireDefault(false.B)
-      val wen_sp1_prev = RegNext(wen_sp1)
+      //val wen_sp1_prev = RegNext(wen_sp1)
       wen_sp1 := ~wen_sp0
       wen_sp1.suggestName("wensp1")
       dontTouch(wen_sp1)
@@ -69,12 +71,16 @@ object ShiftRegisterMem {
         mem.suggestName(name)
       }
       val raddr = Counter(en, n)._1
-      val out = mem.read(raddr)
 
+      val out = mem.read(raddr)
+      dontTouch(raddr)
+      raddr.suggestName("read_address")
       val waddr = RegEnable(raddr, (n-1).U, en) //next, init, enable
       when (en) {
         mem.write(waddr, in)
       }
+      waddr.suggestName("write_address")
+      dontTouch(waddr)
 
       out
     }
