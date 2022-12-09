@@ -144,7 +144,7 @@ class ShiftRegisterMemRandomSpec extends FlatSpec with Matchers {
   }
   val depthSignal = 12
   val proto = UInt(4.W)
-  val depthSR = 2 // 4
+  val depthSR = 2 // 4 // 8 // 12
   val testSignal = getTestSignal(depthSignal)
 
   it should f"test ShiftRegisterMem with treadle backend and use_sp_mem = true" in {
