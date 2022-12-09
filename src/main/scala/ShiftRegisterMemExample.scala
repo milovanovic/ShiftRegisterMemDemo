@@ -31,7 +31,7 @@ class ShiftRegisterMemExample[T <: Data](gen: T, n: Int, isMem: Boolean = true, 
     cnt := cnt +% 1.U
   }
   val initialInDone = RegInit(false.B)
-  when (cnt === (n.U - 1.U)) {
+  when (cnt === (n.U - 1.U) && io.en === true.B) {
     initialInDone := true.B
   }
   // or only initialInDone?
