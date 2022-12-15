@@ -13,3 +13,6 @@
 [submodule "sims/firesim"]
 	path = sims/firesim
 	url = https://github.com/firesim/firesim.git
+[submodule "tools/chisel3"]
+	path = tools/chisel3
+	url = https://github.com/chipsalliance/chisel3
