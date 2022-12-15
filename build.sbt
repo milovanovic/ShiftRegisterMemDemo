@@ -27,7 +27,13 @@ lazy val commonSettings = Seq(
   //unmanagedBase := (shiftMemRoot / unmanagedBase).value,
   allDependencies := {
     // drop specific maven dependencies in subprojects in favor of Chipyard's version
-    val dropDeps = Seq(("edu.berkeley.cs", "rocketchip"))
+    val dropDeps = Seq(
+      ("edu.berkeley.cs", "firrtl"),
+      ("edu.berkeley.cs", "chisel3"),
+      ("edu.berkeley.cs", "rocketchip"),
+      ("edu.berkeley.cs", "chisel-iotesters"),
+      ("edu.berkeley.cs", "treadle"),
+      ("edu.berkeley.cs", "firrtl-interpreter")))
     allDependencies.value.filterNot { dep =>
       dropDeps.contains((dep.organization, dep.name))
     }
@@ -56,26 +62,33 @@ def freshProject(name: String, dir: File): Project = {
     )
 }
 
-val chiselVersion = "3.5.2"
+val chiselVersion = "3.4.1"
 
-lazy val chiselSettings = Seq(
-  libraryDependencies ++= Seq("edu.berkeley.cs" %% "chisel3" % chiselVersion,
-  "org.apache.commons" % "commons-lang3" % "3.12.0",
-  "org.apache.commons" % "commons-text" % "1.9"),
-  addCompilerPlugin("edu.berkeley.cs" % "chisel3-plugin" % chiselVersion cross CrossVersion.full))
+lazy val chiselRef = ProjectRef(workspaceDirectory / "chisel3", "chisel")
+lazy val chiselLib = "edu.berkeley.cs" %% "chisel3" % chiselVersion
+lazy val chiselLibDeps = (chiselRef / Keys.libraryDependencies)
+// While not built from source, *must* be in sync with the chisel3 git submodule
+// Building from source requires extending sbt-sriracha or a similar plugin and
+//   keeping scalaVersion in sync with chisel3 to the minor version
+lazy val chiselPluginLib = "edu.berkeley.cs" % "chisel3-plugin" % chiselVersion cross CrossVersion.full
 
 
-val firrtlVersion = "1.5.1"
-lazy val firrtlSettings = Seq(libraryDependencies ++= Seq("edu.berkeley.cs" %% "firrtl" % firrtlVersion))
-val chiselTestVersion = "2.5.1"
-lazy val chiselTestSettings = Seq(libraryDependencies ++= Seq("edu.berkeley.cs" %% "chisel-iotesters" % chiselTestVersion))
+val firrtlVersion = "1.4.1"
+lazy val firrtlRef = ProjectRef(workspaceDirectory / "firrtl", "firrtl")
+lazy val firrtlLib = "edu.berkeley.cs" %% "firrtl" % firrtlVersion
+val firrtlLibDeps = settingKey[Seq[sbt.librarymanagement.ModuleID]]("FIRRTL Library Dependencies sans antlr4")
+Global / firrtlLibDeps := {
+  // drop antlr4 compile dep. but keep antlr4-runtime dep. (compile needs the plugin to be setup)
+  (firrtlRef / Keys.libraryDependencies).value.filterNot(_.name == "antlr4")
+}
 
-// Subproject definitions begin
-// -- Rocket Chip --
+
 // Rocket-chip dependencies (subsumes making RC a RootProject)
 lazy val hardfloat  = (project in rocketChipDir / "hardfloat")
-  .settings(chiselSettings)
-  //.dependsOn(midasTargetUtils)
+  .sourceDependency(chiselRef, chiselLib)
+  .settings(addCompilerPlugin(chiselPluginLib))
+  .settings(libraryDependencies ++= chiselLibDeps.value)
+  .dependsOn(midasTargetUtils)
   .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
@@ -106,14 +119,15 @@ lazy val rocketConfig = (project in rocketChipDir / "api-config-chipsalliance/bu
   )
 
 lazy val rocketchip = freshProject("rocketchip", rocketChipDir)
+  .sourceDependency(chiselRef, chiselLib)
+  .settings(addCompilerPlugin(chiselPluginLib))
+  .settings(libraryDependencies ++= chiselLibDeps.value)
   .dependsOn(hardfloat, rocketMacros, rocketConfig)
   .settings(commonSettings)
-  .settings(chiselSettings)
   .settings(
     libraryDependencies ++= Seq(
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
       "org.json4s" %% "json4s-jackson" % "3.6.1",
-      "org.apache.commons" % "commons-lang3" % "3.12.0",
       "org.scalatest" %% "scalatest" % "3.2.0" % "test"
     )
   )
@@ -122,21 +136,45 @@ lazy val rocketchip = freshProject("rocketchip", rocketChipDir)
     semanticdbVersion := scalafixSemanticdb.revision,
     scalacOptions += "-Ywarn-unused-import"
   )
+lazy val rocketLibDeps = (rocketchip / Keys.libraryDependencies)
+
+lazy val firrtl_interpreter = (project in file("tools/firrtl-interpreter"))
+  .sourceDependency(firrtlRef, firrtlLib)
+  .settings(commonSettings)
+  .settings(libraryDependencies ++= (Global / firrtlLibDeps).value)
+lazy val firrtlInterpreterLibDeps = (firrtl_interpreter / Keys.libraryDependencies)
+
+lazy val treadle = (project in file("tools/treadle"))
+  .sourceDependency(firrtlRef, firrtlLib)
+  .settings(commonSettings)
+  .settings(libraryDependencies ++= (Global / firrtlLibDeps).value)
+lazy val treadleLibDeps = (treadle / Keys.libraryDependencies)
+
+lazy val chisel_testers = (project in file("tools/chisel-testers"))
+  .sourceDependency(chiselRef, chiselLib)
+  .settings(addCompilerPlugin(chiselPluginLib))
+  .settings(libraryDependencies ++= chiselLibDeps.value)
+  .dependsOn(firrtl_interpreter, treadle)
+  .settings(libraryDependencies ++= firrtlInterpreterLibDeps.value)
+  .settings(libraryDependencies ++= treadleLibDeps.value)
+  .settings(commonSettings)
+lazy val chiselTestersLibDeps = (chisel_testers / Keys.libraryDependencies)
+
 
 lazy val firesimDir = file("sims/firesim/sim/")
 lazy val rocketLibDeps = (rocketchip / Keys.libraryDependencies)
 lazy val midasTargetUtils = ProjectRef(firesimDir, "targetutils")
 
 lazy val dsptools = freshProject("dsptools", file("./tools/dsptools"))
+  .dependsOn(chisel_testers)
+  .settings(libraryDependencies ++= chiselTestersLibDeps.value)
   .settings(
-    chiselSettings,
-    chiselTestSettings,
     commonSettings,
     libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest" % "3.2.+" % "test",
       "org.typelevel" %% "spire" % "0.16.2",
       "org.scalanlp" %% "breeze" % "1.1",
       "junit" % "junit" % "4.13" % "test",
+      "org.scalatest" %% "scalatest" % "3.0.+" % "test",
       "org.scalacheck" %% "scalacheck" % "1.14.3" % "test",
   ))
 
