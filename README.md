@@ -1,6 +1,6 @@
 
 
-Demonstration of output differences between two different chipyard relases for ShiftRegisterMem
+Demonstration of output differences between two different chipyard releases for ShiftRegisterMem
 ===================
 
 This repository contains `ShiftRegisterMemExample` module accompanied with an appropriate test cases that validate [ShiftRegisterMem](https://github.com/ucb-bar/dsptools/blob/master/rocket/src/main/scala/craft/ShiftRegisterMem.scala) object.
