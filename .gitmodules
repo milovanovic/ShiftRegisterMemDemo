@@ -16,3 +16,6 @@
 [submodule "tools/chisel3"]
 	path = tools/chisel3
 	url = https://github.com/chipsalliance/chisel3
+[submodule "tools/firrtl"]
+	path = tools/firrtl
+	url = https://github.com/chipsalliance/firrtl.git
