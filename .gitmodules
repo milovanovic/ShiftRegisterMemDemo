@@ -19,3 +19,12 @@
 [submodule "generators/rocket-chip"]
 	path = generators/rocket-chip
 	url = https://github.com/chipsalliance/rocket-chip.git
+[submodule "tools/chisel-testers"]
+	path = tools/chisel-testers
+	url = https://github.com/freechipsproject/chisel-testers.git
+[submodule "tools/treadle"]
+	path = tools/treadle
+	url = https://github.com/chipsalliance/treadle.git
+[submodule "tools/firrtl-interpreter"]
+	path = tools/firrtl-interpreter
+	url = https://github.com/freechipsproject/firrtl-interpreter.git
