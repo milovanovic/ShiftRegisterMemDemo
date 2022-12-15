@@ -37,6 +37,7 @@ sbt test
 ```
 
 The output should look like:
+
 ![report](./doc/images/report.png)
 
 
