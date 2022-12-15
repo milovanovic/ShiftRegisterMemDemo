@@ -1,6 +1,18 @@
 import Tests._
 
 lazy val shiftMemRoot = Project("shiftMemRoot", file("."))
+  .dependsOn(`rocket-dsp-utils`)
+  .settings(
+    chiselSettings,
+    chiselTestSettings,
+    commonSettings,
+    libraryDependencies ++= Seq(
+      "org.scalatest" %% "scalatest" % "3.2.+" % "test",
+      "org.typelevel" %% "spire" % "0.16.2",
+      "org.scalanlp" %% "breeze" % "1.1",
+      "junit" % "junit" % "4.13" % "test",
+      "org.scalacheck" %% "scalacheck" % "1.14.3" % "test",
+  ))
 
 lazy val commonSettings = Seq(
   organization := "edu.berkeley.cs",
@@ -12,7 +24,7 @@ lazy val commonSettings = Seq(
     case _ => MergeStrategy.first}},
   scalacOptions ++= Seq("-deprecation","-unchecked","-Xsource:2.11"),
   addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full),
-  unmanagedBase := (shiftMemRoot / unmanagedBase).value,
+  //unmanagedBase := (shiftMemRoot / unmanagedBase).value,
   allDependencies := {
     // drop specific maven dependencies in subprojects in favor of Chipyard's version
     val dropDeps = Seq(("edu.berkeley.cs", "rocketchip"))
@@ -142,14 +154,9 @@ lazy val `rocket-dsp-utils` = freshProject("rocket-dsp-utils", file("./tools/roc
   .settings(libraryDependencies ++= rocketLibDeps.value)
   .settings(commonSettings)
 
-/*lazy val shiftMem = freshProject("shiftMem", file("."))
-  .dependsOn(rocketchip, `rocket-dsp-utils`)
-  .settings(chiselSettings)
-  .settings(chiselTestSettings)
-  .settings(commonSettings)*/
 
 // Info: If the project is freshProject tests can not be run!!!
-lazy val shiftMem = (project in file("./design")) //freshProject("shiftMem", file("./design")) //(project in file("./design"))
+/*lazy val shiftMem = (project in file("./design")) //freshProject("shiftMem", file("./design")) //(project in file("./design"))
   .dependsOn(rocketchip, `rocket-dsp-utils`, `api-config-chipsalliance`, dsptools)
   .settings(libraryDependencies ++= rocketLibDeps.value)
   .settings(
@@ -160,5 +167,5 @@ lazy val shiftMem = (project in file("./design")) //freshProject("shiftMem", fil
         dropDeps.contains((dep.organization, dep.name))
       }
     },
-    commonSettings)
+    commonSettings)*/
 
