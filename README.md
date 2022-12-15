@@ -1,3 +1,4 @@
+
 Demonstration of output differences between two different chipyard relases for ShiftRegisterMem
 ===================
 
@@ -5,13 +6,41 @@ This repository contains `ShiftRegisterMemExample` module accompanied with an ap
 
 This design is tested with two different backends (`treadle` and `verilator`).
 
-Waveform diagrams for the given example are generated and presented below. - to be changed
-![treadle backend](./doc/images/treadle.png)
-Waveform diagram generated for `treadle` backend
-![verilator backend](./doc/images/verilator.png)
+Waveform diagrams for the given example are generated and presented below.
+
+For the ShiftRegisterMem:
+
+![verilator backend](./doc/images/verilator_shift_mem.png)
 Waveform diagram generated for `verilator` backend
+
+If `ShiftRegisterMem` is replaced with simple `ShiftRegister` object from `chisel3.util` library, all tests pass without errors for both mentioned backends. Diagrams are presented below:
+
+![verilator backend](./doc/images/verilator_shift_reg.png)
+Waveform diagram generated for `verilator` backend
+
+If tools versions are compatible with chipyard < 1.5.0 release there are no problems with ShiftRegisterMem object and all tests pass!!!
+One waveform diagram for that case (verilator backend) is given bellow.
+![verilator backend](./doc/images/verilator_shift_mem_ok.png)
 
 
 This issue leads to incorrect simulation behaviour of designs where `ShiftRegisterMem` object is extensively used.
 
-If `ShiftRegisterMem` is replaced with simple `ShiftRegister` object from `chisel3.util` library all tests pass without errors for both mentioned backends (no differences between the two are observed).
+Repository initialization :
+
+```
+git clone --branch chipyard-release-diff https://github.com/milovanovic/ShiftRegisterMemDemo.git
+cd ShiftRegisterMemDemo
+//submodules init
+git config --local submodule.sims/firesim.update none
+git submodule update --init --recursive
+git config --local --unset-all submodule.sims/firesim.update
+git submodule update --init sims/firesim
+```
+
+Note: This is fast solution, it works but it generates dirty submodules, use:
+
+    git status --ignore-submodules=dirty
+
+or just ignore changes that are reported inside submodules (use git stash --all as an alternative).
+
+
