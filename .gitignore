@@ -3,6 +3,7 @@ generated-rtl/
 *.fir
 *.json
 *.v
+*.zip
 
 target/
 project/
