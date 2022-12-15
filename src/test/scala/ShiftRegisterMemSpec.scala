@@ -22,7 +22,7 @@ class ShiftRegisterTester(c: ShiftRegisterMemExample[UInt], testSignal: Seq[Int]
   }
 
   poke(c.io.en, 0)
-  step(8)
+  step(4)
   poke(c.io.en, 1)
 
   for (i <- testSignal.length/2 until (testSignal.length-1)) {
