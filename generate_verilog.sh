@@ -17,7 +17,7 @@ generate_mem_sram () {
   do
     for width in "${width_array[@]}"
     do
-      cd $dir_path && sbt "runMain shiftregmem.ShiftRegisterApp $target_dir_mem_sram $depth $width 1 1"
+      cd $dir_path && sbt "runMain shiftregmem.ShiftRegisterApp $target_dir_mem_sram $width $depth 1 1"
       if [ -d $target_dir_mem_sram ]; then mv $dir_path/mem.conf $target_dir_mem_sram/mem_width_${width}_depth_${depth}.conf;fi
     done
   done
@@ -28,7 +28,7 @@ generate_mem_reg () {
   do
     for width in "${width_array[@]}"
     do
-      cd $dir_path && sbt "runMain shiftregmem.ShiftRegisterApp $target_dir_mem_reg $depth $width 1"
+      cd $dir_path && sbt "runMain shiftregmem.ShiftRegisterApp $target_dir_mem_reg $width $depth 1"
     done
   done
 }
@@ -38,7 +38,7 @@ generate_reg () {
   do
     for width in "${width_array[@]}"
     do
-      cd $dir_path && sbt "runMain shiftregmem.ShiftRegisterApp $target_dir_sram_reg $depth $width 0"
+      cd $dir_path && sbt "runMain shiftregmem.ShiftRegisterApp $target_dir_sram_reg $width $depth 0"
     done
   done
 }

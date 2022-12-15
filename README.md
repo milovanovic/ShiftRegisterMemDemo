@@ -1,12 +1,11 @@
 Shift Register with and without SyncReadMem object
 =======================================================
-This repository contains `ShiftRegisterExample` module accompanied with an appropriate test cases that validate [ShiftRegisterMem](https://github.com/ucb-bar/dsptools/blob/master/rocket/src/main/scala/craft/ShiftRegisterMem.scala) object.
+This repository contains `ShiftRegisterExample` module written in Chisel HDL.
 
 ## Prerequisites
 
-The following software packages should be installed prior to running this project:
+The following software package should be installed prior to running this project:
 * [sbt](http://www.scala-sbt.org)
-* [Verilator](http://www.veripool.org/wiki/verilator) - only if you want to run tests
 
 ## Generate verilog
 To generate verilog code for  all instances of interest, run `make` in base directory. All verilog files are generated inside `generated-rtl` directory.
