@@ -10,3 +10,6 @@
 [submodule "sims/firesim"]
 	path = sims/firesim
 	url = https://github.com/firesim/firesim.git
+[submodule "tools/rocket-dsp-utils"]
+	path = tools/rocket-dsp-utils
+	url = https://github.com/milovanovic/rocket-dsp-utils.git
